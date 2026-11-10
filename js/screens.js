@@ -23,6 +23,7 @@ function showScreen(name) {
   });
   window.scrollTo(0, 0);
   if (name !== 'result') clearConfetti();
+  if (window.MPG.fit) window.MPG.fit.refresh(); // 화면 크기에 맞춤 (js/fit.js)
   const heading = document.querySelector(`.screen[data-screen="${name}"] h1, .screen[data-screen="${name}"] h2`);
   if (heading) heading.focus({ preventScroll: true });
 }
@@ -93,6 +94,7 @@ function initSetupScreen({ onStart }) {
       b.setAttribute('aria-checked', String(b.dataset.id === state.character));
     });
     renderSlider();
+    if (window.MPG.fit) window.MPG.fit.refresh(); // ✓ 표시 등으로 크기가 바뀌면 다시 맞춘다
   }
 
   diffGroup.addEventListener('click', (e) => {

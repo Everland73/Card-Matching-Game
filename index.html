@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#FFF8E7">
   <title>짝맞추기 게임</title>
   <link rel="stylesheet" href="css/style.css">
@@ -14,68 +14,74 @@
 
     <!-- 1. 시작 화면 -->
     <section class="screen screen-start" data-screen="start">
-      <div class="topbar">
-        <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
+      <div class="fit">
+        <div class="topbar">
+          <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
+        </div>
+        <h1 tabindex="-1">짝맞추기 게임</h1>
+        <p class="lead">같은 그림 두 장을 찾아요</p>
+        <button type="button" id="btn-open-setup" class="btn btn-primary btn-xl">게임 시작</button>
       </div>
-      <h1 tabindex="-1">짝맞추기 게임</h1>
-      <p class="lead">같은 그림 두 장을 찾아요</p>
-      <button type="button" id="btn-open-setup" class="btn btn-primary btn-xl">게임 시작</button>
     </section>
 
     <!-- 2. 설정 화면 -->
     <section class="screen screen-setup" data-screen="setup" hidden>
-      <div class="topbar">
-        <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
-      </div>
-      <h2 tabindex="-1">게임 설정</h2>
-      <div class="setup-layout">
-        <div class="setup-col">
-          <div class="field">
-            <p class="field-title" id="difficulty-title">난이도</p>
-            <div class="choice-row choice-row-3" id="difficulty-group" role="radiogroup" aria-labelledby="difficulty-title"></div>
-          </div>
-          <div class="field">
-            <p class="field-title" id="character-title">그림 고르기</p>
-            <div class="choice-row choice-row-4" id="character-group" role="radiogroup" aria-labelledby="character-title"></div>
-          </div>
+      <div class="fit">
+        <div class="topbar">
+          <h2 tabindex="-1">게임 설정</h2>
+          <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
         </div>
-        <div class="setup-col">
-          <div class="field">
-            <label class="field-title" for="goal-slider">목표 시간</label>
-            <p class="goal-value" id="goal-value" aria-live="polite"></p>
-            <input type="range" id="goal-slider" class="slider">
-            <div class="slider-ends"><span id="goal-min"></span><span id="goal-max"></span></div>
-            <p class="hint">이 시간 안에 끝내면 보너스 점수</p>
+        <div class="setup-layout">
+          <div class="setup-col">
+            <div class="field">
+              <p class="field-title" id="difficulty-title">난이도</p>
+              <div class="choice-row choice-row-3" id="difficulty-group" role="radiogroup" aria-labelledby="difficulty-title"></div>
+            </div>
+            <div class="field">
+              <p class="field-title" id="character-title">그림 고르기</p>
+              <div class="choice-row choice-row-4" id="character-group" role="radiogroup" aria-labelledby="character-title"></div>
+            </div>
           </div>
-          <button type="button" id="btn-begin" class="btn btn-primary btn-xl">시작하기</button>
+          <div class="setup-col">
+            <div class="field">
+              <label class="field-title" for="goal-slider">목표 시간</label>
+              <p class="goal-value" id="goal-value" aria-live="polite"></p>
+              <input type="range" id="goal-slider" class="slider">
+              <div class="slider-ends"><span id="goal-min"></span><span id="goal-max"></span></div>
+              <p class="hint">이 시간 안에 끝내면 보너스 점수</p>
+            </div>
+            <button type="button" id="btn-begin" class="btn btn-primary btn-xl">시작하기</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 3. 게임 화면: 미리보기 → 덮기 → 플레이 -->
+    <!-- 3. 게임 화면: 미리보기 → 덮기 → 플레이 (패 격자는 남은 공간에 CSS로 맞춘다) -->
     <section class="screen screen-game" data-screen="game" hidden>
       <h2 class="sr-only" tabindex="-1">게임 화면</h2>
 
-      <header class="game-header">
-        <div class="stat">
-          <span class="stat-label">걸린 시간</span>
-          <span class="stat-value" id="game-elapsed">0초</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">목표 시간</span>
-          <span class="stat-value" id="game-goal"></span>
-        </div>
-        <div class="game-actions">
-          <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
-          <button type="button" id="btn-pause" class="btn" disabled>일시정지</button>
-          <button type="button" id="btn-exit" class="btn btn-secondary">나가기</button>
-        </div>
-      </header>
+      <div class="game-side">
+        <header class="game-header">
+          <div class="stat">
+            <span class="stat-label">걸린 시간</span>
+            <span class="stat-value" id="game-elapsed">0초</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">목표 시간</span>
+            <span class="stat-value" id="game-goal"></span>
+          </div>
+          <div class="game-actions">
+            <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
+            <button type="button" id="btn-pause" class="btn" disabled>일시정지</button>
+            <button type="button" id="btn-exit" class="btn btn-secondary">나가기</button>
+          </div>
+        </header>
 
-      <p class="game-message" aria-live="polite">
-        <span id="game-message-text"></span>
-        <span class="game-count" id="game-count"></span>
-      </p>
+        <p class="game-message" aria-live="polite">
+          <span id="game-message-text"></span>
+          <span class="game-count" id="game-count"></span>
+        </p>
+      </div>
 
       <div class="board-wrap">
         <ul class="board" id="game-board" aria-label="패"></ul>
@@ -96,33 +102,34 @@
 
     <!-- 4. 결과 화면 -->
     <section class="screen screen-result" data-screen="result" hidden>
-      <div class="topbar">
-        <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
+      <div class="fit">
+        <div class="topbar">
+          <h2 id="result-title" tabindex="-1">결과</h2>
+          <button type="button" class="btn btn-secondary btn-sound js-sound" aria-pressed="true"><span class="sound-icon" aria-hidden="true">🔊</span> <span class="sound-text">소리 켜짐</span></button>
+        </div>
+        <p class="lead" id="result-sub"></p>
+
+        <dl class="result-items">
+          <div class="result-item">
+            <dt>걸린 시간</dt>
+            <dd id="result-time"></dd>
+          </div>
+          <div class="result-item">
+            <dt>목표 시간 결과</dt>
+            <dd id="result-goal"></dd>
+          </div>
+          <div class="result-item result-score">
+            <dt>점수</dt>
+            <dd id="result-score"></dd>
+          </div>
+        </dl>
+        <p class="hint" id="result-detail"></p>
+
+        <div class="result-actions">
+          <button type="button" id="btn-retry" class="btn btn-primary">다시 하기</button>
+          <button type="button" id="btn-home" class="btn btn-secondary">처음으로</button>
+        </div>
       </div>
-      <h2 id="result-title" tabindex="-1">결과</h2>
-      <p class="lead" id="result-sub"></p>
-
-      <dl class="result-items">
-        <div class="result-item">
-          <dt>걸린 시간</dt>
-          <dd id="result-time"></dd>
-        </div>
-        <div class="result-item">
-          <dt>목표 시간 결과</dt>
-          <dd id="result-goal"></dd>
-        </div>
-        <div class="result-item result-score">
-          <dt>점수</dt>
-          <dd id="result-score"></dd>
-        </div>
-      </dl>
-      <p class="hint" id="result-detail"></p>
-
-      <div class="result-actions">
-        <button type="button" id="btn-retry" class="btn btn-primary">다시 하기</button>
-        <button type="button" id="btn-home" class="btn btn-secondary">처음으로</button>
-      </div>
-
       <div class="confetti" id="confetti" aria-hidden="true"></div>
     </section>
 
@@ -132,6 +139,7 @@
   <script src="js/config.js"></script>
   <script src="js/game.js"></script>
   <script src="js/sound.js"></script>
+  <script src="js/fit.js"></script>
   <script src="js/screens.js"></script>
   <script src="js/play.js"></script>
   <script src="js/main.js"></script>

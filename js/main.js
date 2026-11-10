@@ -58,12 +58,17 @@
   renderSoundButtons();
 
   document.addEventListener('click', (e) => {
+    sound.resume(); // 기기가 오디오를 멈췄다면(탭 전환·전화 등) 탭할 때 다시 깨운다
     if (e.target.closest('.js-sound')) {
       sound.setEnabled(!sound.isEnabled());
       renderSoundButtons();
     }
     // 버튼 탭 소리 (패는 뒤집는 소리가 따로 있다)
     if (e.target.closest('button') && !e.target.closest('.card')) sound.play('click');
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) sound.resume();
   });
 
   showScreen('start');

@@ -92,6 +92,7 @@
     function setMessage(text, count = '') {
       msgText.textContent = text;
       countEl.textContent = count;
+      if (window.MPG.fit) window.MPG.fit.refresh(); // 문구 길이가 달라지면 칸 크기를 다시 맞춘다
     }
 
     function showElapsed(ms) {

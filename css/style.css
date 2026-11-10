@@ -1,10 +1,13 @@
-/* PRD 2장 디자인 원칙: 본문 24px+, 버튼 28px+, 시간·숫자 48px+, 터치 80px+, 간격 16px+, 명암비 7:1+ */
+/* PRD 2장 디자인 원칙: 본문 24px+, 버튼 28px+, 시간·숫자 48px+, 터치 80px+, 간격 16px+, 명암비 7:1+
+   모든 화면은 기기 화면 안에 한 번에 들어오게 만든다(스크롤 없음).
+   - 시작·설정·결과: 내용이 화면보다 크면 js/fit.js가 비율에 맞춰 줄인다.
+   - 게임: 패 격자를 남은 공간에 CSS로 맞춘다. 아주 작은 화면(폰)에서는 패가 80px보다 작아질 수 있다. */
 
 :root {
   --bg: #FFF8E7;        /* 배경 */
   --text: #1A1A1A;      /* 글자: 배경 대비 약 16:1 */
   --navy: #1B3A6B;      /* 버튼·선택 색: 흰 글자 대비 약 11:1 */
-  --green: #1B5E20;     /* 시작 버튼: 흰 글자 대비 약 7.9:1 */
+  --green: #1B5E20;     /* 시작 버튼·클리어: 흰 글자 대비 약 7.9:1 */
   --white: #FFFFFF;
   --focus: #8A4B00;
 
@@ -15,14 +18,19 @@
 
   --touch: 88px;        /* 최소 80px보다 여유 있게 */
   --gap: 16px;
+  --pad-x: 32px;
+  --pad-y: 24px;
+  --space: 28px;        /* 화면 안 덩어리 사이 간격 */
 }
 
 * { box-sizing: border-box; }
 
+html, body { height: 100%; margin: 0; }
 html { -webkit-text-size-adjust: 100%; }
 
 body {
-  margin: 0;
+  overflow: hidden;           /* 화면 밖으로 밀려나 잘리지 않게: 각 화면이 화면 크기에 맞춰진다 */
+  overscroll-behavior: none;
   background: var(--bg);
   color: var(--text);
   font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
@@ -37,30 +45,48 @@ body {
 h1, h2, p { margin: 0; }
 h1:focus, h2:focus { outline: none; }
 
-#app { min-height: 100vh; min-height: 100dvh; }
+/* 실제 보이는 화면 높이(js/fit.js가 --app-h를 갱신). 노치·홈 바 안전 영역도 피한다. */
+#app {
+  height: 100vh;
+  height: var(--app-h, 100dvh);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
 
-.screen {
-  min-height: 100vh;
-  min-height: 100dvh;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 32px 48px;
+.screen { position: relative; height: 100%; overflow: hidden; }
+.screen[hidden] { display: none; }
+
+/* 시작·설정·결과 화면의 내용 틀: fit.js가 필요하면 줄인다 */
+.fit {
+  transform-origin: 0 0;
+  width: 100%;
+  min-height: 100%;
+  padding: var(--pad-y) var(--pad-x);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: var(--space);
 }
-.screen[hidden] { display: none; }
 
-.screen > h1 { font-size: 64px; line-height: 1.2; text-align: center; }
-.screen > h2 { font-size: var(--fs-title); line-height: 1.2; text-align: center; }
+.fit > h1 { font-size: 64px; line-height: 1.2; text-align: center; }
 .lead { font-size: var(--fs-btn); text-align: center; }
+
+/* 위쪽 줄: 제목(왼쪽)과 소리 버튼(오른쪽) */
+.topbar {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+}
+.topbar h2 { font-size: var(--fs-title); line-height: 1.2; }
+.topbar .btn-sound { margin-left: auto; }
 
 /* ── 버튼 ── */
 button {
   font: inherit;
   color: inherit;
-  touch-action: manipulation; /* 더블탭 확대 방지 */
+  touch-action: manipulation;
   cursor: pointer;
 }
 
@@ -77,9 +103,13 @@ button {
   transition: transform 0.08s ease;
 }
 .btn-primary { background: var(--green); border-color: var(--green); }
+.btn-secondary { background: var(--white); color: var(--navy); }
 .btn-xl { min-width: 320px; min-height: 120px; font-size: 36px; }
+.btn-sound { min-width: 200px; white-space: nowrap; }
+.btn:disabled { opacity: 0.4; cursor: default; }
 
 button:active { transform: scale(0.96); } /* 눌린 듯 살짝 작아짐 */
+button:disabled:active { transform: none; }
 
 button:focus-visible,
 .slider:focus-visible {
@@ -87,17 +117,19 @@ button:focus-visible,
   outline-offset: 4px;
 }
 
-/* ── 시작 화면 ── */
-.screen-start { justify-content: center; }
+/* 시작 화면: 소리 버튼은 위에 두고 나머지는 가운데 */
+.screen-start .fit > .topbar + h1 { margin-top: auto; }
+.screen-start .fit > .btn-xl { margin-bottom: auto; }
 
 /* ── 설정 화면 ── */
 .setup-layout {
   width: 100%;
+  max-width: 1100px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
+  gap: var(--space);
 }
-.setup-col { display: flex; flex-direction: column; gap: 40px; align-items: stretch; }
+.setup-col { display: flex; flex-direction: column; gap: var(--space); align-items: stretch; }
 .setup-col > .btn { align-self: center; }
 
 .field { display: flex; flex-direction: column; gap: var(--gap); }
@@ -133,8 +165,8 @@ button:focus-visible,
 }
 .choice[aria-checked="true"] .choice-main::before { content: "✓ "; }
 
-.choice-char { min-height: 140px; }
-.choice-char .symbol { font-size: 56px; }
+.choice-char { min-height: 128px; }
+.choice-char .symbol { font-size: 52px; }
 
 /* 그림(이모지·SVG) */
 .symbol { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
@@ -193,12 +225,13 @@ button:focus-visible,
 .hint { font-size: var(--fs-btn); text-align: center; }
 
 /* ── 게임 화면 ── */
-.screen.screen-game {
-  gap: 16px;
-  padding-top: 16px;
-  padding-bottom: 24px;
-  --board-offset: 300px; /* 격자 위쪽 영역(시간·버튼·안내)이 차지하는 높이 */
+.screen-game {
+  padding: 16px var(--pad-x) 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
+.game-side { flex: none; display: flex; flex-direction: column; gap: 8px; }
 
 .game-header {
   width: 100%;
@@ -206,50 +239,71 @@ button:focus-visible,
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--gap);
+  gap: 8px var(--gap);
 }
-.stat { display: flex; flex-direction: column; min-width: 150px; }
-.stat-label { font-size: var(--fs-body); }
+.stat { display: flex; flex-direction: column; min-width: 130px; }
+.stat-label { font-size: var(--fs-body); line-height: 1.2; }
 .stat-value {
   font-size: 52px; /* 시간·점수 48px 이상 */
   font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
-.game-actions { display: flex; gap: var(--gap); }
-.game-actions .btn { min-width: 0; padding: 16px 28px; }
+/* 목표 시간 임박: 주황 배경 + 검정 글자 (명암비 약 8:1). 문구도 함께 바뀐다. */
+.stat-value.is-warning {
+  align-self: flex-start;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: #FF9800;
+  color: var(--text);
+}
 
-.btn-secondary { background: var(--white); color: var(--navy); }
-.btn:disabled { opacity: 0.4; cursor: default; }
-button:disabled:active { transform: none; }
+.game-actions { display: flex; gap: var(--gap); }
+.game-actions .btn { min-width: 0; min-height: 80px; padding: 12px 24px; }
 
 .game-message {
-  min-height: 72px;
+  min-height: 56px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 4px 16px;
   font-size: var(--fs-btn);
   font-weight: 700;
+  line-height: 1.2;
 }
 .game-count { font-size: 56px; line-height: 1; min-width: 1.2em; text-align: center; }
 
-/* 패 격자: --cols × --rows (가로 × 세로) */
+/* 패 격자: 남은 공간 안에서 가로(--cols) × 세로(--rows)가 모두 보이도록 패 크기를 정한다 */
 .board-wrap {
   position: relative;
-  width: 100%;
-  /* 화면 높이에 맞춰 폭을 줄여 격자 전체가 한 화면에 들어오게 한다. 단, 패 최소 80px은 유지 */
-  max-width: min(100%, calc((100vh - var(--board-offset)) * var(--cols) / var(--rows)));
-  max-width: min(100%, calc((100dvh - var(--board-offset)) * var(--cols) / var(--rows)));
-  min-width: calc(var(--cols) * 80px + (var(--cols) - 1) * var(--gap));
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .board {
   list-style: none;
   margin: 0;
   padding: 0;
-  width: 100%;
   display: grid;
-  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
   gap: var(--gap);
+  /* 컨테이너 단위(cqw)를 지원하지 않는 구형 브라우저용 대체값 */
+  width: min(100%, calc((100vh - 280px) * var(--cols) / var(--rows)));
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+}
+@supports (width: 1cqw) {
+  .board-wrap { container-type: size; }
+  .board {
+    --card: min(
+      calc((100cqw - (var(--cols) - 1) * var(--gap)) / var(--cols)),
+      calc((100cqh - (var(--rows) - 1) * var(--gap)) / var(--rows))
+    );
+    width: auto;
+    grid-template-columns: repeat(var(--cols), var(--card));
+    grid-auto-rows: var(--card);
+  }
 }
 .is-paused .board { visibility: hidden; }
 
@@ -264,6 +318,7 @@ button:disabled:active { transform: none; }
   border-radius: 20px;
   font-size: 40px;
   font-weight: 700;
+  text-align: center;
 }
 .pause-panel[hidden] { display: none; }
 
@@ -273,8 +328,8 @@ button:disabled:active { transform: none; }
   display: block;
   width: 100%;
   aspect-ratio: 1 / 1;
-  min-width: 80px;
-  min-height: 80px;
+  min-width: 0;
+  min-height: 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -342,71 +397,36 @@ button:disabled:active { transform: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
   background: rgba(26, 26, 26, 0.75);
 }
 .modal[hidden] { display: none; }
 .modal-box {
   width: 100%;
   max-width: 640px;
-  padding: 32px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
   background: var(--bg);
   border: 4px solid var(--navy);
   border-radius: 24px;
   text-align: center;
 }
-.modal-title { font-size: 36px; font-weight: 700; }
+.modal-title { font-size: 36px; font-weight: 700; line-height: 1.3; }
 .modal-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
 
-/* 결과 화면 자리표시 */
-.result-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-btn); text-align: center; }
-.result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* ── 소리 버튼 (화면 상단) ── */
-.topbar { width: 100%; display: flex; justify-content: flex-end; }
-.btn-sound { min-width: 200px; white-space: nowrap; }
-.game-actions .btn-sound { min-width: 0; }
-
-/* 시작 화면: 소리 버튼은 위에 두고 나머지는 가운데 */
-.screen-start > .topbar + h1 { margin-top: auto; }
-.screen-start > .btn-xl { margin-bottom: auto; }
-
-/* ── 목표 시간 임박: 시간 숫자를 주황색으로 (주황 배경 + 검정 글자, 명암비 약 8:1) ── */
-.stat-value.is-warning {
-  align-self: flex-start;
-  padding: 0 12px;
-  border-radius: 12px;
-  background: #FF9800;
-  color: var(--text);
-}
-
 /* ── 결과 화면 ── */
-.screen-result { position: relative; }
 .result-items {
   width: 100%;
   max-width: 720px;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: 12px;
 }
 .result-item {
-  padding: 16px 24px;
+  padding: 12px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -415,7 +435,7 @@ button:disabled:active { transform: none; }
   border-radius: 20px;
   text-align: center;
 }
-.result-item dt { font-size: var(--fs-body); }
+.result-item dt { font-size: var(--fs-body); line-height: 1.3; }
 .result-item dd { margin: 0; font-size: 52px; font-weight: 700; line-height: 1.2; }
 .result-item:nth-child(2) dd { font-size: 48px; }
 .result-score { background: var(--navy); color: var(--white); }
@@ -424,7 +444,7 @@ button:disabled:active { transform: none; }
 
 /* 색종이: transform·opacity만 움직여 부드럽게 */
 .confetti {
-  position: fixed;
+  position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
@@ -446,19 +466,106 @@ button:disabled:active { transform: none; }
 
 .noscript { margin: 0; padding: 24px; font-size: var(--fs-btn); background: var(--white); }
 
-/* ── 화면 방향·크기 대응 ── */
-/* 가로 태블릿: 설정을 좌우 두 칸으로 */
-@media (orientation: landscape) and (min-width: 900px) {
-  .setup-layout { grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: start; }
-  .screen { padding-top: 24px; gap: 24px; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* 세로 태블릿·좁은 화면 */
-@media (max-width: 640px) {
-  .screen { padding: 24px 16px 40px; }
-  .screen > h1 { font-size: 48px; }
+/* ── 화면 방향·크기 대응 ── */
+
+/* 가로 화면(태블릿·큰 폰): 설정을 좌우 두 칸으로 */
+@media (orientation: landscape) and (min-width: 640px) {
+  .setup-layout { grid-template-columns: 1.25fr 1fr; gap: 40px; align-items: start; }
+}
+
+/* 높이가 낮은 화면: 간격과 큰 요소를 줄여서 한 화면에 들어오게 한다 */
+@media (max-height: 760px) {
+  :root { --pad-y: 12px; --space: 16px; --touch: 80px; } /* 태블릿은 터치 영역 80px 유지 */
+  .fit > h1 { font-size: 48px; }
+  .topbar h2 { font-size: 32px; }
+  .btn-xl { min-height: 96px; }
+  .choice-char { min-height: 104px; }
+  .choice-char .symbol { font-size: 44px; }
+  .goal-value { font-size: 48px; }
+  .slider { height: 88px; }
+  .result-item dd { font-size: 48px; }
+  .result-score dd { font-size: 60px; }
+  .result-item { padding: 8px 20px; }
+}
+
+/* 좁은 화면(폰 세로, 작은 태블릿): 한 줄에 못 들어가는 것은 줄을 바꾸고 여백을 줄인다 */
+@media (max-width: 600px) {
+  :root { --pad-x: 12px; --pad-y: 12px; --gap: 12px; --space: 16px; --touch: 72px; }
+  .btn { min-width: 0; padding: 12px 24px; }
+  .btn-xl { min-width: 0; width: 100%; min-height: 96px; }
+  .goal-value { font-size: 48px; }
+  .fit > h1 { font-size: 48px; }
+  .btn-sound { min-width: 0; padding: 12px 16px; }
   .choice-row-4 { grid-template-columns: repeat(2, 1fr); }
-  .btn-xl { min-width: 0; width: 100%; }
+  /* 선택 버튼은 그림·글자를 가로로 놓아 높이를 아낀다 (자리가 모자라면 알아서 줄바꿈) */
+  .choice { flex-direction: row; flex-wrap: wrap; column-gap: 8px; row-gap: 0; padding: 8px 6px; min-height: 64px; }
+  .choice-char { min-height: 64px; }
+  .choice-char .symbol { font-size: 36px; }
+  .slider { height: 80px; }
+  .stat { min-width: 0; }
+  .stat-value { font-size: 48px; }
+  .game-actions { gap: 8px; }
+  .game-actions .btn { min-height: 64px; padding: 8px 14px; }
+  /* 게임 화면의 소리 버튼은 그림만 보이게 (글자는 스크린리더용으로 남김) */
+  .game-actions .sound-text {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .modal-box { padding: 20px; }
+  .modal-title { font-size: 30px; }
+}
+
+/* 가로 폰·낮은 가로 화면: 시간·버튼을 왼쪽 칸으로 옮기고 패 격자가 오른쪽 전체 높이를 쓴다 */
+@media (orientation: landscape) and (max-height: 520px) {
+  .screen-game { flex-direction: row; align-items: stretch; gap: 12px; padding: 8px var(--pad-x); }
+  .game-side { width: min(42%, 380px); justify-content: center; gap: 8px; }
+  .stat { min-width: 0; }
+  .stat-value { font-size: 48px; }
+  .game-actions .btn { min-height: 64px; padding: 8px 14px; }
+  .game-message { min-height: 0; }
+  .game-count { font-size: 48px; }
+  .pause-panel { font-size: 32px; }
+}
+
+/* 가로 태블릿(높이가 낮음): 결과 항목을 가로로 나란히 놓아 줄이지 않고도 한 화면에 들어오게 한다 */
+@media (orientation: landscape) and (max-height: 760px) {
+  .result-items { max-width: 960px; flex-direction: row; }
+  .result-item { flex: 1; justify-content: center; }
+  .result-item:nth-child(2) dd { font-size: 32px; }
+  .result-score dd { font-size: 60px; }
+}
+
+/* 가로 폰(낮은 가로 화면): 시작·설정·결과 화면의 세로 길이를 줄인다 */
+@media (orientation: landscape) and (max-height: 520px) {
+  :root { --pad-y: 8px; --space: 10px; --gap: 10px; --touch: 64px; }
+  .fit > h1 { font-size: 40px; }
+  .topbar h2 { font-size: 28px; }
+  .btn-xl { min-height: 72px; font-size: 32px; }
+  .btn-sound { padding: 8px 16px; }
+  .field { gap: 8px; }
+  .goal-value { font-size: 44px; }
+  .slider { height: 72px; }
+  .choice { flex-direction: row; flex-wrap: wrap; column-gap: 8px; row-gap: 0; padding: 6px; min-height: 56px; }
+  .choice-char { min-height: 56px; }
+  .choice-char .symbol { font-size: 32px; }
+  /* 결과 항목을 가로로 나란히 */
+  .result-items { max-width: 900px; flex-direction: row; }
+  .result-item { flex: 1; padding: 6px 12px; justify-content: center; }
+  .result-item dd { font-size: 48px; }
+  .result-item:nth-child(2) dd { font-size: 32px; }
+  .result-score dd { font-size: 60px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
