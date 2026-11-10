@@ -1,0 +1,466 @@
+/* PRD 2장 디자인 원칙: 본문 24px+, 버튼 28px+, 시간·숫자 48px+, 터치 80px+, 간격 16px+, 명암비 7:1+ */
+
+:root {
+  --bg: #FFF8E7;        /* 배경 */
+  --text: #1A1A1A;      /* 글자: 배경 대비 약 16:1 */
+  --navy: #1B3A6B;      /* 버튼·선택 색: 흰 글자 대비 약 11:1 */
+  --green: #1B5E20;     /* 시작 버튼: 흰 글자 대비 약 7.9:1 */
+  --white: #FFFFFF;
+  --focus: #8A4B00;
+
+  --fs-body: 24px;
+  --fs-btn: 28px;
+  --fs-title: 40px;
+  --fs-big: 56px;
+
+  --touch: 88px;        /* 최소 80px보다 여유 있게 */
+  --gap: 16px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* 더블탭 확대·300ms 지연 방지 */
+}
+
+h1, h2, p { margin: 0; }
+h1:focus, h2:focus { outline: none; }
+
+#app { min-height: 100vh; min-height: 100dvh; }
+
+.screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+.screen[hidden] { display: none; }
+
+.screen > h1 { font-size: 64px; line-height: 1.2; text-align: center; }
+.screen > h2 { font-size: var(--fs-title); line-height: 1.2; text-align: center; }
+.lead { font-size: var(--fs-btn); text-align: center; }
+
+/* ── 버튼 ── */
+button {
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation; /* 더블탭 확대 방지 */
+  cursor: pointer;
+}
+
+.btn {
+  min-width: 240px;
+  min-height: var(--touch);
+  padding: 16px 40px;
+  border: 4px solid var(--navy);
+  border-radius: 20px;
+  background: var(--navy);
+  color: var(--white);
+  font-size: var(--fs-btn);
+  font-weight: 700;
+  transition: transform 0.08s ease;
+}
+.btn-primary { background: var(--green); border-color: var(--green); }
+.btn-xl { min-width: 320px; min-height: 120px; font-size: 36px; }
+
+button:active { transform: scale(0.96); } /* 눌린 듯 살짝 작아짐 */
+
+button:focus-visible,
+.slider:focus-visible {
+  outline: 5px solid var(--focus);
+  outline-offset: 4px;
+}
+
+/* ── 시작 화면 ── */
+.screen-start { justify-content: center; }
+
+/* ── 설정 화면 ── */
+.setup-layout {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+.setup-col { display: flex; flex-direction: column; gap: 40px; align-items: stretch; }
+.setup-col > .btn { align-self: center; }
+
+.field { display: flex; flex-direction: column; gap: var(--gap); }
+.field-title { font-size: var(--fs-btn); font-weight: 700; }
+
+.choice-row { display: grid; gap: var(--gap); }
+.choice-row-3 { grid-template-columns: repeat(3, 1fr); }
+.choice-row-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* 선택 버튼: 선택 여부를 색뿐 아니라 ✓ 표시와 굵은 테두리로도 알린다 */
+.choice {
+  min-height: var(--touch);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 4px solid var(--navy);
+  border-radius: 20px;
+  background: var(--white);
+  color: var(--text);
+  font-size: var(--fs-btn);
+  font-weight: 700;
+  line-height: 1.2;
+  transition: transform 0.08s ease;
+}
+.choice-sub { font-size: var(--fs-btn); font-weight: 400; }
+.choice[aria-checked="true"] {
+  background: var(--navy);
+  color: var(--white);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--navy);
+}
+.choice[aria-checked="true"] .choice-main::before { content: "✓ "; }
+
+.choice-char { min-height: 140px; }
+.choice-char .symbol { font-size: 56px; }
+
+/* 그림(이모지·SVG) */
+.symbol { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.symbol svg { width: 1em; height: 1em; display: block; }
+
+/* 목표 시간 */
+.goal-value { font-size: var(--fs-big); font-weight: 700; line-height: 1.1; text-align: center; }
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 96px;           /* 손잡이(80px)보다 약간 큰 터치 영역 */
+  margin: 0;
+  background: transparent;
+  --pct: 50%;
+}
+.slider::-webkit-slider-runnable-track {
+  height: 28px;
+  border-radius: 14px;
+  background: linear-gradient(to right, var(--navy) var(--pct), var(--white) var(--pct));
+  box-shadow: inset 0 0 0 3px var(--navy);
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 80px;
+  height: 80px;
+  margin-top: -26px;      /* (트랙 28 - 손잡이 80) / 2 */
+  border-radius: 50%;
+  background: var(--navy);
+  border: 8px solid var(--white);
+  box-shadow: 0 0 0 4px var(--navy);
+}
+.slider::-moz-range-track {
+  height: 28px;
+  border-radius: 14px;
+  background: var(--white);
+  box-shadow: inset 0 0 0 3px var(--navy);
+}
+.slider::-moz-range-progress {
+  height: 28px;
+  border-radius: 14px;
+  background: var(--navy);
+}
+.slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 8px solid var(--white);
+  box-shadow: 0 0 0 4px var(--navy);
+}
+
+.slider-ends { display: flex; justify-content: space-between; font-size: var(--fs-body); }
+.hint { font-size: var(--fs-btn); text-align: center; }
+
+/* ── 게임 화면 ── */
+.screen.screen-game {
+  gap: 16px;
+  padding-top: 16px;
+  padding-bottom: 24px;
+  --board-offset: 300px; /* 격자 위쪽 영역(시간·버튼·안내)이 차지하는 높이 */
+}
+
+.game-header {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+}
+.stat { display: flex; flex-direction: column; min-width: 150px; }
+.stat-label { font-size: var(--fs-body); }
+.stat-value {
+  font-size: 52px; /* 시간·점수 48px 이상 */
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.game-actions { display: flex; gap: var(--gap); }
+.game-actions .btn { min-width: 0; padding: 16px 28px; }
+
+.btn-secondary { background: var(--white); color: var(--navy); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+button:disabled:active { transform: none; }
+
+.game-message {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: var(--fs-btn);
+  font-weight: 700;
+}
+.game-count { font-size: 56px; line-height: 1; min-width: 1.2em; text-align: center; }
+
+/* 패 격자: --cols × --rows (가로 × 세로) */
+.board-wrap {
+  position: relative;
+  width: 100%;
+  /* 화면 높이에 맞춰 폭을 줄여 격자 전체가 한 화면에 들어오게 한다. 단, 패 최소 80px은 유지 */
+  max-width: min(100%, calc((100vh - var(--board-offset)) * var(--cols) / var(--rows)));
+  max-width: min(100%, calc((100dvh - var(--board-offset)) * var(--cols) / var(--rows)));
+  min-width: calc(var(--cols) * 80px + (var(--cols) - 1) * var(--gap));
+}
+.board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--gap);
+}
+.is-paused .board { visibility: hidden; }
+
+.pause-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  border: 4px solid var(--navy);
+  border-radius: 20px;
+  font-size: 40px;
+  font-weight: 700;
+}
+.pause-panel[hidden] { display: none; }
+
+/* 패: 뒷면(덮인 모습)과 앞면(그림)이 뒤집히는 구조 */
+.card {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-width: 80px;
+  min-height: 80px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  container-type: inline-size;
+  perspective: 900px;
+}
+.card-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+  will-change: transform; /* 뒤집기를 GPU에서 처리해 반응을 빠르게 */
+}
+.card.is-open .card-inner { transform: rotateY(180deg); }
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--navy);
+  border-radius: 16px;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.face-back {
+  background: var(--navy) repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 10px, transparent 10px 20px);
+  color: var(--white);
+  font-size: 40px;
+  font-size: 40cqw;
+  font-weight: 700;
+}
+.face-front { background: var(--white); transform: rotateY(180deg); }
+.face-front .symbol { font-size: 56px; font-size: 60cqw; }
+
+/* 클리어: 초록 테두리 + ✓ 표시 (색만으로 구분하지 않음) */
+.card.is-matched .face-front { border: 8px solid var(--green); background: #E8F5E9; }
+.card.is-matched .face-front::after {
+  content: "✓";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  width: 26cqw;
+  height: 28px;
+  height: 26cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--white);
+  font-size: 18px;
+  font-size: 18cqw;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 나가기 확인 창 */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(26, 26, 26, 0.75);
+}
+.modal[hidden] { display: none; }
+.modal-box {
+  width: 100%;
+  max-width: 640px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  background: var(--bg);
+  border: 4px solid var(--navy);
+  border-radius: 24px;
+  text-align: center;
+}
+.modal-title { font-size: 36px; font-weight: 700; }
+.modal-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
+
+/* 결과 화면 자리표시 */
+.result-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-btn); text-align: center; }
+.result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 소리 버튼 (화면 상단) ── */
+.topbar { width: 100%; display: flex; justify-content: flex-end; }
+.btn-sound { min-width: 200px; white-space: nowrap; }
+.game-actions .btn-sound { min-width: 0; }
+
+/* 시작 화면: 소리 버튼은 위에 두고 나머지는 가운데 */
+.screen-start > .topbar + h1 { margin-top: auto; }
+.screen-start > .btn-xl { margin-bottom: auto; }
+
+/* ── 목표 시간 임박: 시간 숫자를 주황색으로 (주황 배경 + 검정 글자, 명암비 약 8:1) ── */
+.stat-value.is-warning {
+  align-self: flex-start;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: #FF9800;
+  color: var(--text);
+}
+
+/* ── 결과 화면 ── */
+.screen-result { position: relative; }
+.result-items {
+  width: 100%;
+  max-width: 720px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.result-item {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--white);
+  border: 3px solid var(--navy);
+  border-radius: 20px;
+  text-align: center;
+}
+.result-item dt { font-size: var(--fs-body); }
+.result-item dd { margin: 0; font-size: 52px; font-weight: 700; line-height: 1.2; }
+.result-item:nth-child(2) dd { font-size: 48px; }
+.result-score { background: var(--navy); color: var(--white); }
+.result-score dd { font-size: 72px; }
+.result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
+
+/* 색종이: transform·opacity만 움직여 부드럽게 */
+.confetti {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+}
+.confetti i {
+  position: absolute;
+  top: -40px;
+  border-radius: 3px;
+  opacity: 0;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  100% { opacity: 1; transform: translate3d(var(--drift, 0), 110vh, 0) rotate(720deg); }
+}
+
+.noscript { margin: 0; padding: 24px; font-size: var(--fs-btn); background: var(--white); }
+
+/* ── 화면 방향·크기 대응 ── */
+/* 가로 태블릿: 설정을 좌우 두 칸으로 */
+@media (orientation: landscape) and (min-width: 900px) {
+  .setup-layout { grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: start; }
+  .screen { padding-top: 24px; gap: 24px; }
+}
+
+/* 세로 태블릿·좁은 화면 */
+@media (max-width: 640px) {
+  .screen { padding: 24px 16px 40px; }
+  .screen > h1 { font-size: 48px; }
+  .choice-row-4 { grid-template-columns: repeat(2, 1fr); }
+  .btn-xl { min-width: 0; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .choice, .card-inner { transition: none; }
+}
