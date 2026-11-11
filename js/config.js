@@ -16,7 +16,7 @@ const DIFFICULTIES = {
     cols: 4,
     rows: 3,
     previewSec: 5, // 미리보기 시간(초)
-    goalDefaultSec: 60, // 목표 시간 기본값(초)
+    goalDefaultSec: 30, // 목표 시간 기본값(초)
     baseSec: 40, // 점수 계산용 기준 시간(초)
     multiplier: 1.0, // 점수 배수
   },
@@ -65,7 +65,7 @@ const TIMING = {
 const GOAL_SLIDER = { min: 20, max: 300, step: 5 };
 
 // 설정 화면은 매번 이 값에서 시작합니다 (PRD 3장).
-const DEFAULT_SELECTION = { difficulty: 'mid', character: 'fruit' };
+const DEFAULT_SELECTION = { difficulty: 'low', character: 'fruit' };
 
 // ── 캐릭터 ─────────────────────────────────────────
 // 항목: { id, name, emoji } 또는 { id, name, svg }
