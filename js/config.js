@@ -62,7 +62,7 @@ const TIMING = {
 };
 
 // 목표 시간 슬라이더 (초)
-const GOAL_SLIDER = { min: 20, max: 300, step: 5 };
+const GOAL_SLIDER = { min: 20, max: 180, step: 5 };
 
 // 설정 화면은 매번 이 값에서 시작합니다 (PRD 3장).
 const DEFAULT_SELECTION = { difficulty: 'low', character: 'fruit' };

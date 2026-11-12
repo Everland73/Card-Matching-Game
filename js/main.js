@@ -17,7 +17,7 @@
       if (result.goalMet) launchConfetti(); // 목표 시간 안에 끝냈을 때만 색종이
     },
     onExit() {
-      showScreen('start');
+      openSetup();
     },
   });
 
@@ -43,7 +43,8 @@
     if (lastSettings) startGame(lastSettings);
     else openSetup();
   });
-  document.getElementById('btn-home').addEventListener('click', () => showScreen('start'));
+  document.getElementById('btn-home').addEventListener('click', openSetup);
+  document.getElementById('btn-setup-exit').addEventListener('click', () => showScreen('start'));
 
   // 소리 켜기/끄기 버튼은 모든 화면에 있고, 같은 상태를 보여 준다.
   const soundButtons = document.querySelectorAll('.js-sound');

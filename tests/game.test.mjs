@@ -4,7 +4,11 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const { shuffle, createDeck, createMemoryGame, createTimer, remainingSec, calcScore, buildResult } = require('../js/game.js');
-const { CHARACTERS, DIFFICULTIES } = require('../js/config.js');
+const { CHARACTERS, DIFFICULTIES, GOAL_SLIDER } = require('../js/config.js');
+
+test('goal slider: 목표 시간은 최대 180초', () => {
+  assert.equal(GOAL_SLIDER.max, 180);
+});
 
 // 항상 같은 순서가 나오는 간단한 난수
 function seeded(seed = 1) {
