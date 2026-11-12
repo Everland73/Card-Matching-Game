@@ -55,6 +55,33 @@ h1:focus, h2:focus { outline: none; }
 .screen { position: relative; height: 100%; overflow: hidden; }
 .screen[hidden] { display: none; }
 
+/* 시작 화면: PPT 배경은 화면을 채우고, 문구 레이어는 잘리지 않게 비율을 유지한다 */
+.screen-start {
+  background: var(--bg) url("../assets/landing-background.png") center / cover no-repeat;
+}
+.screen-start .event-art {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(100%, calc(var(--app-h, 100dvh) * 2.281));
+  height: auto;
+  max-height: 100%;
+  pointer-events: none;
+}
+.screen-start > .fit { position: relative; z-index: 1; }
+.screen-start h1,
+.screen-start .lead {
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 2px 4px rgba(255, 255, 255, 0.9);
+}
+.brand-footer {
+  width: min(100%, 368px);
+  padding: 8px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+.brand-footer img { display: block; width: 100%; height: auto; }
+
 /* 시작·설정·결과 화면의 내용 틀: fit.js가 필요하면 줄인다 */
 .fit {
   transform-origin: 0 0;
