@@ -6,8 +6,12 @@ const require = createRequire(import.meta.url);
 const { shuffle, createDeck, createMemoryGame, createTimer, remainingSec, calcScore, buildResult } = require('../js/game.js');
 const { CHARACTERS, DIFFICULTIES, GOAL_SLIDER } = require('../js/config.js');
 
-test('goal slider: 목표 시간은 최대 180초', () => {
-  assert.equal(GOAL_SLIDER.max, 180);
+test('goal settings: 난이도별 기본 목표 시간과 최대값을 확인', () => {
+  assert.deepEqual(
+    Object.fromEntries(Object.entries(DIFFICULTIES).map(([id, difficulty]) => [id, difficulty.goalDefaultSec])),
+    { low: 60, mid: 100, high: 180 },
+  );
+  assert.equal(GOAL_SLIDER.max, 200);
 });
 
 // 항상 같은 순서가 나오는 간단한 난수
