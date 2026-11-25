@@ -292,14 +292,14 @@
       if (!s || s.phase === 'done') return;
       addReason('confirm');
       confirmBox.hidden = false;
-      stayBtn.focus();
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) stayBtn.focus();
     });
 
     stayBtn.addEventListener('click', () => {
       if (!s) return;
       confirmBox.hidden = true;
       removeReason('confirm');
-      exitBtn.focus();
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) exitBtn.focus();
     });
 
     leaveBtn.addEventListener('click', () => {

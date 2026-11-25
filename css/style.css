@@ -208,6 +208,8 @@ button:focus-visible,
 /* 목표 시간 */
 .goal-value { font-size: var(--fs-big); font-weight: 700; line-height: 1.1; text-align: center; }
 
+.slider-wrap { touch-action: pan-y; cursor: pointer; }
+.slider-wrap .slider { pointer-events: none; }
 .slider {
   -webkit-appearance: none;
   appearance: none;

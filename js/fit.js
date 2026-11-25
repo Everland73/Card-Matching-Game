@@ -100,15 +100,24 @@
     fitGameSide();
   }
 
-  let timer = 0;
+  // 아이패드 등은 화면을 돌린 직후 한동안 예전 크기를 알려 준다. 크기가 확정될 때까지 여러 번 다시 맞춘다.
+  let timers = [];
   function refreshSoon() {
     refresh();
-    clearTimeout(timer);
-    timer = setTimeout(refresh, 250); // 화면 회전 직후 크기가 늦게 확정되는 기기 대비
+    timers.forEach(clearTimeout);
+    timers = [100, 300, 600, 1000, 1600].map((ms) => setTimeout(refresh, ms));
   }
 
   window.addEventListener('resize', refreshSoon);
   window.addEventListener('orientationchange', refreshSoon);
+  if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', refreshSoon);
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(orientation: portrait)');
+    if (mq.addEventListener) mq.addEventListener('change', refreshSoon);
+  }
+  document.addEventListener('fullscreenchange', refreshSoon);
+  document.addEventListener('webkitfullscreenchange', refreshSoon);
+  window.addEventListener('pageshow', refreshSoon);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', refreshSoon);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
   setAppHeight();

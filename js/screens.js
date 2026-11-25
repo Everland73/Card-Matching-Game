@@ -26,7 +26,8 @@ function showScreen(name) {
   clearConfetti(); // 화면이 바뀌면 색종이는 치운다
   if (window.MPG.fit) window.MPG.fit.refresh(); // 화면 크기에 맞춤 (js/fit.js)
   const heading = document.querySelector(`.screen[data-screen="${name}"] h1, .screen[data-screen="${name}"] h2`);
-  if (heading) heading.focus({ preventScroll: true });
+  // 전체화면에서는 포커스를 옮기면 iPad가 '입력 허용 안 됨' 경고를 띄우므로 옮기지 않는다
+  if (heading && !document.fullscreenElement && !document.webkitFullscreenElement) heading.focus({ preventScroll: true });
 }
 
 // ── 설정 화면 ──────────────────────────────────────
@@ -113,10 +114,34 @@ function initSetupScreen({ onStart }) {
     render();
   });
 
-  slider.addEventListener('input', () => {
-    state.goalSec = Number(slider.value);
+  // 슬라이더는 <input>을 직접 누르지 않고, 감싼 영역의 터치/마우스로 값을 바꾼다.
+  // (전체화면에서 입력창에 포커스가 가면 iPad가 '전체 화면에서는 입력이 허용되지 않습니다' 경고를 띄운다)
+  const sliderWrap = document.createElement('div');
+  sliderWrap.className = 'slider-wrap';
+  slider.parentNode.insertBefore(sliderWrap, slider);
+  sliderWrap.appendChild(slider);
+  slider.tabIndex = -1;
+
+  function setGoalFromPointer(e) {
+    const rect = slider.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    const raw = GOAL_SLIDER.min + ratio * (GOAL_SLIDER.max - GOAL_SLIDER.min);
+    const snapped = Math.round(raw / GOAL_SLIDER.step) * GOAL_SLIDER.step;
+    state.goalSec = Math.min(GOAL_SLIDER.max, Math.max(GOAL_SLIDER.min, snapped));
     renderSlider();
+  }
+  let dragging = false;
+  sliderWrap.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    try { sliderWrap.setPointerCapture(e.pointerId); } catch (err) { /* 무시 */ }
+    setGoalFromPointer(e);
   });
+  sliderWrap.addEventListener('pointermove', (e) => {
+    if (dragging) setGoalFromPointer(e);
+  });
+  const endDrag = () => { dragging = false; };
+  sliderWrap.addEventListener('pointerup', endDrag);
+  sliderWrap.addEventListener('pointercancel', endDrag);
 
   const getSettings = () => ({ ...state });
 
