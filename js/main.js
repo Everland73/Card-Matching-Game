@@ -14,7 +14,6 @@
       //   (결과 객체는 js/game.js의 buildResult 한 곳에서만 만들어진다. 화면 코드는 고칠 필요 없음)
       renderResult(result);
       showScreen('result');
-      if (result.goalMet) launchConfetti(); // 목표 시간 안에 끝냈을 때만 색종이
     },
     onExit() {
       openSetup();
@@ -26,6 +25,9 @@
     showScreen('game');
     play.start(settings);
   }
+
+  // 화면에 따라 배경 음악을 바꾼다: 설정 -> 인트로, 게임 -> 본 곡, 그 외 -> 무음
+  window.MPG.onScreen = (name) => sound.setMusic(name === 'setup' ? 'setup' : name === 'game' ? 'game' : null);
 
   const setup = initSetupScreen({ onStart: startGame });
 
@@ -73,4 +75,26 @@
   });
 
   showScreen('start');
+})();
+
+// 전체화면 토글 (주소창·상단 메뉴 없이 보기). 지원하지 않는 기기(아이폰 등)에서는 버튼을 숨긴다.
+(function () {
+  const btn = document.getElementById('btn-fullscreen');
+  const root = document.documentElement;
+  const request = root.requestFullscreen || root.webkitRequestFullscreen;
+  const exit = document.exitFullscreen || document.webkitExitFullscreen;
+  if (!btn || !request || !exit) return;
+  const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function refresh() {
+    const on = isFull();
+    btn.textContent = on ? '⛶ 원래 화면' : '⛶ 전체화면';
+    btn.setAttribute('aria-pressed', String(on));
+  }
+  btn.hidden = false;
+  btn.addEventListener('click', () => {
+    const p = isFull() ? exit.call(document) : request.call(root);
+    if (p && p.catch) p.catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
 })();

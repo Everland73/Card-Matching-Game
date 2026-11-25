@@ -9,7 +9,7 @@ const { CHARACTERS, DIFFICULTIES, GOAL_SLIDER } = require('../js/config.js');
 test('goal settings: 난이도별 기본 목표 시간과 최대값을 확인', () => {
   assert.deepEqual(
     Object.fromEntries(Object.entries(DIFFICULTIES).map(([id, difficulty]) => [id, difficulty.goalDefaultSec])),
-    { low: 60, mid: 100, high: 180 },
+    { low: 30, mid: 60, high: 90 },
   );
   assert.equal(GOAL_SLIDER.max, 200);
 });

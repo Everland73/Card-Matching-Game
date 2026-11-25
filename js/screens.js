@@ -22,7 +22,8 @@ function showScreen(name) {
     el.hidden = el.dataset.screen !== name;
   });
   window.scrollTo(0, 0);
-  if (name !== 'result') clearConfetti();
+  if (window.MPG.onScreen) window.MPG.onScreen(name); // 배경 음악 전환 (js/main.js)
+  clearConfetti(); // 화면이 바뀌면 색종이는 치운다
   if (window.MPG.fit) window.MPG.fit.refresh(); // 화면 크기에 맞춤 (js/fit.js)
   const heading = document.querySelector(`.screen[data-screen="${name}"] h1, .screen[data-screen="${name}"] h2`);
   if (heading) heading.focus({ preventScroll: true });
@@ -62,7 +63,7 @@ function initSetupScreen({ onStart }) {
       btn.innerHTML = `<span class="choice-main"></span><span class="choice-sub"></span>`;
       btn.querySelector('.choice-main').textContent = d.label;
       btn.querySelector('.choice-sub').textContent = `${d.cards}장`;
-      btn.setAttribute('aria-label', `난이도 ${d.label}, ${d.cards}장`);
+      btn.setAttribute('aria-label', `난이도 ${d.label}, ${d.cols}×${d.rows}`);
     });
   });
 
@@ -159,15 +160,17 @@ let confettiTimer = 0;
 
 function clearConfetti() {
   clearTimeout(confettiTimer);
-  const box = $('confetti');
-  if (box) box.replaceChildren();
+  ['confetti', 'game-confetti'].forEach((id) => {
+    const box = $(id);
+    if (box) box.replaceChildren();
+  });
 }
 
-function launchConfetti() {
+function launchConfetti(boxId = 'confetti') {
   clearConfetti();
   // 움직임을 줄이도록 설정한 사용자에게는 보여 주지 않는다
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const box = $('confetti');
+  const box = $(boxId);
   const frag = document.createDocumentFragment();
   for (let i = 0; i < 60; i++) {
     const piece = document.createElement('i');

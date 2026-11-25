@@ -11,36 +11,36 @@ const DIFFICULTIES = {
   low: {
     id: 'low',
     label: '하',
-    pairs: 6,
-    cards: 12,
-    cols: 4,
+    pairs: 4,
+    cards: 8, // 3×3 격자에서 한 칸은 로고 칸
+    cols: 3,
     rows: 3,
-    previewSec: 5, // 미리보기 시간(초)
-    goalDefaultSec: 60, // 목표 시간 기본값(초)
+    previewSec: 4, // 미리보기 시간(초)
+    goalDefaultSec: 30, // 목표 시간 기본값(초)
     baseSec: 40, // 점수 계산용 기준 시간(초)
     multiplier: 1.0, // 점수 배수
   },
   mid: {
     id: 'mid',
     label: '중',
-    pairs: 8,
-    cards: 16,
+    pairs: 6,
+    cards: 12,
     cols: 4,
-    rows: 4,
-    previewSec: 8,
-    goalDefaultSec: 100,
+    rows: 3, // 가로 4 × 세로 3
+    previewSec: 6,
+    goalDefaultSec: 60,
     baseSec: 70,
     multiplier: 1.5,
   },
   high: {
     id: 'high',
     label: '상',
-    pairs: 10,
-    cards: 20,
-    cols: 5,
+    pairs: 8,
+    cards: 16,
+    cols: 4,
     rows: 4,
-    previewSec: 12,
-    goalDefaultSec: 180,
+    previewSec: 8,
+    goalDefaultSec: 90,
     baseSec: 120,
     multiplier: 2.0,
   },
@@ -58,7 +58,8 @@ const WARNING_SEC = 10; // 목표 시간 몇 초 전부터 경고(주황색 + �
 const TIMING = {
   mismatchShowMs: 1000, // 불일치 시 두 장을 보여 주는 시간 (PRD 8장: 조정 대상)
   coverMs: 600, // 미리보기가 끝나고 패가 덮이는 동안 기다리는 시간
-  finishDelayMs: 900, // 마지막 짝을 본 뒤 결과 화면으로 넘어가기까지
+  finishDelayMs: 900, // 마지막 짝을 본 뒤 결과 화면으로 넘어가기까지 (목표 시간을 넘긴 경우)
+  celebrateMs: 3000, // 목표 시간 안에 클리어했을 때: 팡파르(약 2.5초)와 색종이를 보여 준 뒤 결과 화면으로
 };
 
 // 목표 시간 슬라이더 (초)
@@ -69,7 +70,7 @@ const DEFAULT_SELECTION = { difficulty: 'low', character: 'fruit' };
 
 // ── 캐릭터 ─────────────────────────────────────────
 // 항목: { id, name, emoji } 또는 { id, name, svg }
-// 가장 많이 쓰는 '상' 난이도가 10쌍이라 각 세트에 10종 이상 둡니다.
+// 가장 많이 쓰는 '상' 난이도가 12쌍이라 각 세트에 12종 이상 둡니다.
 
 const fruit = [
   ['apple', '사과', '🍎'],
@@ -112,6 +113,8 @@ const flower = [
   ['rosette', '장식 꽃', '🏵️'],
   ['wilted', '시든 꽃', '🥀'],
   ['white-flower', '흰 꽃', '💮'],
+  ['blossom', '꽃송이', '🪻'],
+  ['lotus', '연꽃', '🪷'],
 ].map(([id, name, emoji]) => ({ id, name, emoji }));
 
 // 컬러도형: 색과 모양을 모두 다르게 해서, 색을 구분하기 어려워도 모양으로 찾을 수 있습니다.
@@ -148,6 +151,8 @@ const colorShape = [
   ['sky-hexagon', '하늘 육각형', 'hexagon', '#29B6F6'],
   ['brown-cross', '갈색 십자', 'cross', '#6D4C41'],
   ['black-halfcircle', '검정 반원', 'halfcircle', '#212121'],
+  ['teal-circle', '청록 동그라미', 'circle', '#00897B'],
+  ['gray-square', '회색 네모', 'square', '#757575'],
 ].map(([id, name, shape, color]) => ({ id, name, svg: shapeSvg(shape, color) }));
 
 const CHARACTERS = {

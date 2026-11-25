@@ -11,6 +11,7 @@
     remainingSec,
     buildResult,
     createSymbol,
+    launchConfetti,
   } = window.MPG;
 
   // 게임 화면 컨트롤러: 미리보기 → 덮기 → 플레이 → 종료 흐름과 DOM, 효과음을 담당한다.
@@ -39,7 +40,20 @@
     // ── 패 DOM ──────────────────────────────────
     function buildBoard() {
       board.replaceChildren();
+      s.cardEls = [];
+      const hasBlank = s.d.cols * s.d.rows > s.cards.length;
+      const blankAt = hasBlank ? Math.floor(Math.random() * s.d.cols * s.d.rows) : -1; // 로고 칸 위치: 무작위
+      const addLogo = () => {
+        const blank = document.createElement('li');
+        blank.className = 'board-item board-blank';
+        const img = document.createElement('img');
+        img.src = '서초50플러스센터%20로고3.png';
+        img.alt = '';
+        blank.appendChild(img);
+        board.appendChild(blank);
+      };
       s.cards.forEach((card) => {
+        if (card.index === blankAt) addLogo();
         const li = document.createElement('li');
         li.className = 'board-item';
 
@@ -64,8 +78,10 @@
         btn.appendChild(inner);
         li.appendChild(btn);
         board.appendChild(li);
+        s.cardEls[card.index] = btn;
         setLabel(btn, card.item.name, true);
       });
+      if (blankAt === s.cards.length) addLogo();
     }
 
     function setLabel(btn, name, open, matched = false) {
@@ -73,7 +89,7 @@
     }
 
     function cardEl(i) {
-      return board.children[i].firstElementChild;
+      return s.cardEls[i];
     }
 
     function setOpen(i, open) {
@@ -86,6 +102,28 @@
       const btn = cardEl(i);
       btn.classList.add('is-matched');
       setLabel(btn, s.cards[i].item.name, true, true);
+      burst(btn.parentElement);
+    }
+
+    // 짝을 맞춘 카드에서 터지는 효과: 뒤집히는 동안 잠깐 기다렸다가 알갱이가 사방으로 퍼진다.
+    const BURST_COLORS = ['#FFC107', '#FF5252', '#4CAF50', '#29B6F6', '#AB47BC', '#FF9800'];
+    function burst(host) {
+      if (!host) return;
+      const box = document.createElement('span');
+      box.className = 'burst';
+      box.setAttribute('aria-hidden', 'true');
+      const n = 14;
+      for (let k = 0; k < n; k++) {
+        const p = document.createElement('i');
+        const ang = (k / n) * Math.PI * 2 + Math.random() * 0.4;
+        const dist = host.offsetWidth * (0.6 + Math.random() * 0.5); // 카드 크기에 비례
+        p.style.setProperty('--dx', `${Math.cos(ang) * dist}px`);
+        p.style.setProperty('--dy', `${Math.sin(ang) * dist}px`);
+        p.style.background = BURST_COLORS[k % BURST_COLORS.length];
+        box.appendChild(p);
+      }
+      host.appendChild(box);
+      setTimeout(() => box.remove(), 1300);
     }
 
     // ── 메시지·시간 표시 ────────────────────────
@@ -185,6 +223,7 @@
       if (res.type === 'match') {
         res.indices.forEach(setMatched);
         sound.play('match', 0.3);
+        sound.play('pop', 0.3);
         if (res.done) finish();
       } else if (res.type === 'mismatch') {
         sound.play('mismatch', 0.35);
@@ -204,14 +243,22 @@
       exitBtn.disabled = true;
 
       const result = buildResult(s.settings, ms); // 결과 데이터는 game.js 한 곳에서만 만든다
-      sound.play(result.goalMet ? 'clear' : 'clearSlow', 0.7);
+      sound.setMusic(null); // 배경 음악을 끄고 팡파르가 잘 들리게 한다
+      if (result.goalMet) {
+        // 목표 시간 안에 클리어: 게임 화면에서 팡파르 + 색종이를 먼저 보여 준 뒤 결과 화면으로
+        setMessage('클리어! 축하해요!');
+        sound.play('clear', 0.3);
+        launchConfetti('game-confetti');
+      } else {
+        sound.play('clearSlow', 0.7);
+      }
 
       const cur = s;
       s.finishTimer = setTimeout(() => {
         if (s !== cur) return;
         stopSession();
         onFinish(result);
-      }, TIMING.finishDelayMs);
+      }, result.goalMet ? TIMING.celebrateMs : TIMING.finishDelayMs);
     }
 
     // ── 일시정지·나가기 ─────────────────────────

@@ -93,6 +93,8 @@
         <div class="pause-panel" id="pause-panel" hidden>잠시 멈췄어요</div>
       </div>
 
+      <div class="confetti confetti-game" id="game-confetti" aria-hidden="true"></div>
+
       <!-- 나가기 확인 창 -->
       <div class="modal" id="game-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
         <div class="modal-box">
@@ -139,6 +141,8 @@
     </section>
 
   </main>
+
+  <button type="button" id="btn-fullscreen" class="btn btn-secondary btn-fullscreen" aria-pressed="false" hidden>⛶ 전체화면</button>
 
   <!-- 일반 스크립트: 서버 없이 파일을 직접 열어도 동작한다. 순서 중요 -->
   <script src="js/config.js"></script>

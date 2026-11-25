@@ -483,6 +483,7 @@ button:focus-visible,
   pointer-events: none;
   z-index: 5;
 }
+.confetti-game { position: fixed; z-index: 30; }
 .confetti i {
   position: absolute;
   top: -40px;
@@ -606,4 +607,57 @@ button:focus-visible,
 
 @media (prefers-reduced-motion: reduce) {
   .btn, .choice, .card-inner { transition: none; }
+}
+
+.board-blank { display: flex; align-items: center; justify-content: center; }
+.board-blank img { max-width: 80%; max-height: 80%; object-fit: contain; }
+
+/* 전체 화면 버튼 */
+.btn-fullscreen {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 50;
+  min-width: 0;
+  min-height: 56px;
+  padding: 8px 16px;
+  font-size: 22px;
+  opacity: 0.9;
+}
+.btn-fullscreen[hidden] { display: none; }
+
+/* 짝을 맞췄을 때 카드에서 터지는 효과 */
+.board-item { position: relative; }
+.burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+.burst i {
+  position: absolute;
+  left: -9px;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: burst-fly 0.9s ease-out 0.3s forwards;
+}
+@keyframes burst-fly {
+  0% { opacity: 1; transform: translate(0, 0) scale(0.4); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.1); }
+}
+.card.is-matched .card-inner { animation: match-pop 0.5s ease 0.3s; }
+@keyframes match-pop {
+  0%, 100% { scale: 1; }
+  40% { scale: 1.15; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .burst i, .card.is-matched .card-inner { animation: none; }
+  .burst { display: none; }
 }
